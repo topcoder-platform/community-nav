@@ -23,6 +23,11 @@ let idForSecondary = 1000
   2.  If the user has a wipro.com email address, we send them to the wipro_href instead (PROD-257)
 */
 const getMenuLink= (menuItem, profileHandle, isWipro) => {
+  console.log("getMenuLink");
+  console.log(JSON.stringify(menuItem, null, 4))
+  console.log(profileHandle)
+  console.log(isWipro)
+  
   if(isWipro && menuItem.wipro_href){
     return menuItem.wipro_href
   }
