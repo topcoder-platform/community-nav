@@ -17,34 +17,7 @@ const moreId = 'more'
 let id = 1
 let idForSecondary = 1000
 
-/* 
-  This function returns the menu link based on a couple of conditions:
-  1.  If the link ID is myprofile, we fill in the user's handle at the end of the URL, if available
-  2.  If the user has a wipro.com email address, we send them to the wipro_href instead (PROD-257)
-*/
-const getMenuLink= (menuItem, profileHandle, isWipro) => {
-  console.log("getMenuLink");
-  console.log(JSON.stringify(menuItem, null, 4))
-  console.log(profileHandle)
-  console.log(isWipro)
-  
-  if(isWipro && menuItem.wipro_href){
-    return menuItem.wipro_href
-  }
-  else if(menuItem.id == 'myprofile'){
-    if (profileHandle){
-      return `/members/${profileHandle}`
-    }
-    else{
-      return '/'
-    }
-  }
-  else{
-    return (menuItem.href || '#')
-  }
-}
-
-const initMenuId = (menu, profileHandle, loggedIn, isWipro) => {
+const initMenuId = (menu, profileHandle, loggedIn) => {
   id = 1
   menu = menu
     .map(level1 => ({
@@ -66,7 +39,9 @@ const initMenuId = (menu, profileHandle, loggedIn, isWipro) => {
       secondaryMenu: level1.secondaryMenu && level1.secondaryMenu.map(levelsec => ({
         ...levelsec,
         id: levelsec.id || idForSecondary++,
-        href: getMenuLink(levelsec, profileHandle, isWipro)
+        // set user profile link
+        href: levelsec.id !== 'myprofile' ? (levelsec.href || '#')
+          : (profileHandle ? `/members/${profileHandle}` : '/')
       }))
     }))
 
@@ -98,7 +73,6 @@ const TopNav = ({
   openMore,
   loggedIn,
   profileHandle,
-  isWipro,
   logoLink
 }) => {
   useEffect(() => {
@@ -130,7 +104,7 @@ const TopNav = ({
   const [showIconSelect, setShowIconSelect] = useState()
   const [iconSelectX, setIconSelectX] = useState()
 
-  const menuWithId = useMemo(() => initMenuId(_menu, profileHandle, loggedIn, isWipro), [_menu, profileHandle, loggedIn, isWipro])
+  const menuWithId = useMemo(() => initMenuId(_menu, profileHandle, loggedIn), [_menu, profileHandle, loggedIn])
 
   const [leftNav, setLeftNav] = useState(menuWithId)
 
@@ -627,9 +601,7 @@ TopNav.propTypes = {
 
   profileHandle: PropTypes.string,
 
-  logoLink: PropTypes.string,
-
-  isWipro: PropTypes.bool
+  logoLink: PropTypes.string
 }
 
 export default TopNav
